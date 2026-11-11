@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>地球熱量分配模擬器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#183247;--muted:#607789;--line:#dce8ee;--paper:#f4f8fa;--blue:#1689b8;--deep:#075985;--sea:#159bd0;--air:#718096;--land:#d79532;--ice:#51b9c8;--green:#16866b;--shadow:0 12px 34px rgba(23,66,88,.09)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:'Noto Sans TC',sans-serif;color:var(--ink)}body{background:radial-gradient(circle at 10% 10%,#e4f4f8 0,transparent 32%),radial-gradient(circle at 90% 90%,#e8f1f7 0,transparent 30%),#f5f8fa;overflow:hidden}
+button,input{font:inherit}button{cursor:pointer}.app{height:100dvh;max-width:1500px;margin:auto;padding:14px 22px 16px;display:flex;flex-direction:column;gap:12px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#ffffffed;border:1px solid var(--line);border-radius:20px;padding:11px 18px;box-shadow:var(--shadow);flex-shrink:0}.brand{display:flex;align-items:center;gap:12px;min-width:0}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#27a6cc,#176b9b);display:grid;place-items:center;color:white;font-size:23px}.eyebrow{font-size:11px;color:#548095;font-weight:800;letter-spacing:.08em}.brand h1{font-size:18px;margin:1px 0 0;font-weight:900;letter-spacing:.01em}.top-actions{display:flex;align-items:center;gap:8px}.quiet-btn{border:1px solid var(--line);background:#f7fafb;color:#536b7b;border-radius:11px;padding:8px 12px;font-size:12px;font-weight:700}.progress-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}.step-dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#e8eff3;color:#718696;font-size:12px;font-weight:900;position:relative}.step-dot.active{background:#126f9a;color:white;box-shadow:0 0 0 4px #dceff6}.step-dot.done{background:#d9f1e8;color:#147456}.step-line{height:2px;width:22px;background:#dce6eb}.step-line.done{background:#8bcbb6}
+main{flex:1;min-height:0}.page{height:100%;display:none;min-height:0}.page.active{display:flex;flex-direction:column}.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:2px 2px 12px;flex-shrink:0}.kicker{font-size:11px;color:#1684ad;font-weight:900;letter-spacing:.1em}.page-head h2{font-size:clamp(20px,2.2vw,28px);margin:2px 0 3px;font-weight:900}.page-head p{margin:0;color:var(--muted);font-size:13px}.step-label{background:#e7f3f8;color:#176789;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+.panel{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.explore-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.8fr);gap:14px;flex:1;min-height:0}.realm-panel{padding:18px 20px;display:flex;flex-direction:column;min-height:0;position:relative;overflow:hidden}.realm-panel:before{content:"";position:absolute;inset:auto -40px -100px auto;width:280px;height:280px;border-radius:50%;background:var(--tint);opacity:.6}.realm-tabs{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}.realm-tab{border:1px solid var(--line);background:#f8fbfc;border-radius:12px;padding:8px 14px;color:#536b7b;font-size:13px;font-weight:800}.realm-tab.active{background:var(--tab);border-color:var(--tab);color:white}.realm-main{display:grid;grid-template-columns: minmax(190px,.8fr) minmax(240px,1.2fr);align-items:center;gap:20px;flex:1;min-height:0;position:relative;z-index:1}.realm-visual{height:min(260px,34vh);min-height:170px;border-radius:20px;background:linear-gradient(180deg,var(--tint),#fff);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.realm-visual{height:min(245px,30vh);min-height:165px}
+.realm-art{width:min(190px,70%);height:155px;display:grid;place-items:center;transition:transform .3s}
+.realm-art svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 8px 8px rgba(27,66,86,.13))}
+.realm-visual.hot .realm-art{transform:translateY(-3px) scale(1.035)}.realm-copy h3{font-size:23px;margin:0 0 5px;font-weight:900}.realm-copy .lead{font-size:14px;color:var(--muted);margin:0 0 14px}.state-box{background:#f5f9fb;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:16px}.state-title{font-size:11px;color:#6c8290;font-weight:800}.state-text{font-size:15px;font-weight:900;margin-top:3px}.heat-control{margin-top:10px}.control-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:800;color:#597284}.control-top strong{font-size:22px;color:var(--tab)}input[type=range]{width:100%;accent-color:var(--tab);margin:10px 0 4px}.range-labels{display:flex;justify-content:space-between;color:#8295a0;font-size:10px}.observation-note{font-size:12px;color:#607789;line-height:1.7;margin:10px 0 0}.side-panel{padding:18px;display:flex;flex-direction:column;justify-content:space-between;min-height:0}.side-panel h3{font-size:16px;margin:0 0 8px}.side-panel p{font-size:12px;color:var(--muted);line-height:1.7;margin:0}.check-list{display:grid;gap:9px;margin:16px 0}.check-item{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border:1px solid var(--line);border-radius:12px;background:#fbfdfe;font-size:12px;font-weight:800}.check-item.done{background:#eff9f5;border-color:#c6e9dc;color:#147456}.check-mark{font-size:13px;color:#a0b0b9}.check-item.done .check-mark{color:#16866b}.tip{background:#fff8e9;border:1px solid #f1dfb7;border-radius:13px;padding:11px 12px;font-size:11px;color:#755b2d;line-height:1.65}.footer-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;flex-shrink:0}.foot-hint{font-size:11px;color:#78909e}.primary,.secondary{border:0;border-radius:12px;padding:11px 18px;font-size:13px;font-weight:900;transition:.2s}.primary{background:#126f9a;color:white;box-shadow:0 5px 12px #126f9a26}.primary:hover{background:#0b5d83;transform:translateY(-1px)}.primary:disabled{opacity:.38;cursor:not-allowed;transform:none;box-shadow:none}.secondary{background:#edf4f7;color:#426276;border:1px solid #d8e5eb}.secondary:hover{background:#e1edf2}
+.alloc-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(270px,.7fr);gap:14px;flex:1;min-height:0}.alloc-panel{padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:12px}.alloc-row{display:grid;grid-template-columns:145px 1fr 54px;align-items:center;gap:12px;padding:9px 12px;border:1px solid var(--line);border-radius:14px;background:#fbfdfe}.alloc-name{font-size:13px;font-weight:900;display:flex;align-items:center;gap:8px}.swatch{width:11px;height:11px;border-radius:4px;display:inline-block}.alloc-row input{accent-color:var(--row);margin:0}.alloc-value{text-align:right;font-size:18px;font-weight:900;color:var(--row)}.sum-panel{padding:20px;display:flex;flex-direction:column;justify-content:space-between}.sum-number{font-size:48px;font-weight:900;letter-spacing:-.04em;color:#126f9a;line-height:1}.sum-number small{font-size:17px;color:#8ba0ac}.sum-track{height:10px;background:#e9f0f3;border-radius:20px;overflow:hidden;margin:12px 0}.sum-track span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2babc8,#147caa);transition:width .2s}.sum-status{font-size:12px;font-weight:800;color:#a16c24}.feedback-box{background:#f1f8fb;border:1px solid #d8eaf1;border-radius:15px;padding:14px;margin-top:12px}.feedback-box strong{font-size:13px}.feedback-box p{font-size:12px;line-height:1.75;color:#526f80;margin:5px 0 0}.reveal-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(260px,.9fr);gap:14px;flex:1;min-height:0}.earth-scene{padding:22px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#eaf7fb,#fff 70%);overflow:hidden}.earth{width:min(230px,27vh);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8ad8e9 0 8%,#228cb4 9% 30%,#176f94 31% 50%,#0d4e70 70%);box-shadow:inset -18px -12px 28px #073b5b88,0 18px 35px #1d779333;position:relative;display:grid;place-items:center;color:#fff;font-size:58px}.earth:after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(110deg,transparent 35%,#082e4b55 100%)}.earth .heat-ring{position:absolute;inset:-13px;border:3px solid #f4a35b88;border-radius:50%;box-shadow:0 0 0 9px #f4a35b22}.earth-caption{font-size:12px;color:#668292;margin-top:16px}.story-panel{padding:22px;display:flex;flex-direction:column;justify-content:center}.story-panel h3{font-size:20px;margin:0 0 10px}.story-panel p{font-size:14px;line-height:1.9;color:#536e7e;margin:0 0 12px}.story-highlight{background:#fff7e9;border:1px solid #f0dfbd;border-radius:14px;padding:13px;font-size:12px;line-height:1.75;color:#745b32}.clue-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;flex:1;min-height:0}.clue-card{padding:17px;display:flex;flex-direction:column;gap:9px;border-top:4px solid var(--accent);min-height:0}.clue-letter{font-size:11px;font-weight:900;color:var(--accent);letter-spacing:.08em}.clue-card h3{font-size:16px;margin:0}.clue-card p{font-size:12px;line-height:1.8;color:#587182;margin:0}.clue-fact{margin-top:auto;padding:11px;background:var(--tint);border-radius:12px;font-size:12px;line-height:1.7;font-weight:700;color:#34576b}.result-layout{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;flex-shrink:0}.result-card{padding:13px 15px;text-align:center}.result-card h3{font-size:13px;margin:0 0 8px}.pie{width:clamp(105px,14vh,140px);height:clamp(105px,14vh,140px);margin:0 auto 6px}.pie-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:7px 11px;font-size:10px;color:#617b8a}.legend-item{display:flex;align-items:center;gap:4px}.legend-item i{width:8px;height:8px;border-radius:3px}.result-bottom{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;flex:1;min-height:0;margin-top:12px}.insight-panel,.advice-panel{padding:15px 17px;overflow:auto}.insight-panel h3,.advice-panel h3{font-size:15px;margin:0 0 8px}.insight-panel p,.advice-panel p{font-size:12px;line-height:1.75;color:#567181;margin:5px 0}.advice-list{display:grid;gap:6px}.advice-item{font-size:11px;line-height:1.65;padding:7px 9px;border-radius:10px;background:#f4f8fa;color:#4e6979}.advice-item b{color:#1d526e}.hidden{display:none!important}
+@media(max-width:900px){body{overflow:auto}.app{height:auto;min-height:100dvh;padding:10px}.top{flex-wrap:wrap}.progress-wrap{order:3;width:100%;justify-content:center}.explore-layout,.alloc-layout,.reveal-layout{grid-template-columns:1fr}.page{height:auto;min-height:calc(100dvh - 150px)}.realm-main{grid-template-columns:1fr}.realm-visual{height:180px}.side-panel{gap:10px}.clue-grid{grid-template-columns:1fr}.clue-card{min-height:180px}.result-layout{grid-template-columns:1fr}.result-bottom{grid-template-columns:1fr}.result-card{display:grid;grid-template-columns:1fr 1fr;align-items:center}.pie{grid-row:span 2}.alloc-row{grid-template-columns:110px 1fr 45px}.footer-nav{margin-bottom:10px}}
+@media(max-width:520px){.brand h1{font-size:15px}.top-actions{margin-left:auto}.realm-main{gap:10px}.realm-visual{min-height:140px;height:150px}.realm-copy h3{font-size:20px}.page-head{align-items:flex-start;flex-direction:column}.step-label{align-self:flex-start}.alloc-row{grid-template-columns:90px 1fr 42px;padding:8px}.alloc-name{font-size:11px}.sum-number{font-size:40px}}
+
+/* v2：減少空白、提高資訊密度 */
+.explore-layout{grid-template-columns:minmax(0,1.65fr) minmax(275px,.75fr)}
+.realm-panel{padding:20px 22px}
+.realm-main{grid-template-columns:minmax(230px,1fr) minmax(260px,1.05fr);gap:24px}
+.realm-visual{height:min(330px,42vh);min-height:230px}
+.realm-visual .symbol{font-size:clamp(110px,13vw,165px)}
+.realm-copy h3{font-size:26px}
+.state-box{padding:15px 17px}
+.observation-note{background:#f4f8fa;border-radius:12px;padding:10px 12px}
+.side-panel{padding:20px}
+.check-item{padding:12px 13px}
+.alloc-layout{grid-template-columns:minmax(0,1.5fr) minmax(270px,.7fr)}
+/* 第二次推估：線索與配比同頁，上證據、下操作 */
+.evidence-layout{display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;flex:1;min-height:0}
+.clue-grid.compact{gap:10px;min-height:0}
+.clue-grid.compact .clue-card{padding:13px 15px;gap:6px}
+.clue-grid.compact .clue-card h3{font-size:14px}
+.clue-grid.compact .clue-card p{font-size:11px;line-height:1.55}
+.clue-grid.compact .clue-fact{padding:8px 10px;font-size:11px;line-height:1.5}
+.second-work{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.7fr);gap:12px;min-height:0}
+.second-work .alloc-panel{padding:12px 16px;gap:8px}
+.second-work .alloc-row{padding:7px 11px}
+.second-work .sum-panel{padding:15px 18px}
+.first-story{display:none;grid-template-columns:minmax(230px,.8fr) minmax(0,1.2fr);gap:14px;flex:1;min-height:0}
+.first-story.show{display:grid}
+.first-allocation.hide{display:none}
+.first-story .earth{width:min(250px,31vh)}
+.first-story .story-panel{padding:24px 28px}
+.first-story .story-panel h3{font-size:23px}
+.result-card{padding:15px 17px}
+.result-bottom{gap:12px}
+@media(max-width:900px){
+ .realm-main{grid-template-columns:1fr 1fr}
+ .realm-visual{height:230px}
+ .evidence-layout{display:block}
+ .clue-grid.compact{grid-template-columns:1fr 1fr 1fr;margin-bottom:12px}
+ .second-work{grid-template-columns:1fr}
+ .second-work .sum-panel{gap:10px}
+ .first-story{grid-template-columns:1fr 1fr}
+}
+@media(max-width:650px){
+ .realm-main{grid-template-columns:1fr}
+ .realm-visual{height:170px;min-height:150px}
+ .clue-grid.compact{grid-template-columns:1fr}
+ .clue-grid.compact .clue-card{min-height:0}
+ .first-story{grid-template-columns:1fr}
+ .first-story .earth{width:145px}
+}
+
+
+/* 本次微調：第一步文字放大；第二步將配比與情境整合在同一畫面 */
+.realm-copy h3{font-size:30px!important;margin-bottom:9px}
+.realm-copy .lead{font-size:18px!important;line-height:1.65;margin-bottom:18px}
+.state-box{padding:17px 19px!important;margin-bottom:18px}
+.state-title{font-size:14px!important}
+.state-text{font-size:19px!important;line-height:1.55}
+.control-top{font-size:15px!important}
+.control-top strong{font-size:26px!important}
+.range-labels{font-size:13px!important}
+.observation-note{font-size:16px!important;line-height:1.65;padding:14px 16px!important;margin-top:15px}
+.side-panel h3{font-size:20px!important}
+.side-panel p,.check-item,.tip{font-size:15px!important;line-height:1.65}
+.realm-tab{font-size:15px!important;padding:10px 17px}
+.realm-visual{height:min(245px,30vh);min-height:165px}
+.realm-art{width:min(190px,70%);height:155px}
+/* 第二步：左側保留比例，右側由總計卡切換成推估情境 */
+.alloc-layout.first-allocation{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.8fr);gap:16px;flex:1;min-height:0}
+.first-allocation .alloc-panel{min-height:300px}
+.first-allocation .sum-panel{display:flex;flex-direction:column;justify-content:space-between}
+.first-story{display:none}
+.first-story.show{display:flex;flex-direction:column;gap:12px;height:100%;padding:20px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(160deg,#f1f9fc,#fff 70%)}
+.first-story .earth-scene{display:flex;align-items:center;justify-content:center;gap:16px;background:transparent;border:0;box-shadow:none;padding:0;min-height:100px}
+.first-story .earth{font-size:72px;line-height:1;position:relative}
+.first-story .earth-caption{font-size:12px;color:var(--muted)}
+.first-story .story-panel{background:transparent;border:0;box-shadow:none;padding:0}
+.first-story .story-panel h3{font-size:21px;margin:6px 0 9px}
+.first-story .story-panel p{font-size:15px;line-height:1.7;margin:0 0 12px}
+.first-story .story-highlight{font-size:14px;line-height:1.65;padding:12px 14px;border-radius:12px;background:#fff3dc;color:#79531d}
+.first-story .primary{margin-top:auto}
+#firstAllocRows .alloc-row{padding:17px 16px}
+#firstAllocRows .alloc-name{font-size:16px}
+#firstAllocRows .alloc-value{font-size:20px}
+@media(max-width:800px){
+ .alloc-layout.first-allocation{grid-template-columns:1fr}
+ .first-allocation.saved .alloc-panel{min-height:220px}
+}
+
+
+/* 版面微調：插圖區縮短、插圖放大，並與右側內容頂端對齊 */
+.realm-main{align-items:start!important;gap:20px}
+.realm-visual{
+  height:164px!important;
+  min-height:164px!important;
+  align-self:start;
+  margin-top:2px;
+  border-radius:17px;
+}
+.realm-art{
+  width:min(218px,88%)!important;
+  height:154px!important;
+}
+.realm-art svg{
+  width:100%;
+  height:100%;
+}
+@media(max-width:900px){
+  .realm-main{align-items:start!important;gap:14px}
+  .realm-visual{height:158px!important;min-height:158px!important}
+  .realm-art{width:min(210px,92%)!important;height:150px!important}
+}
+@media(max-width:650px){
+  .realm-main{grid-template-columns:1fr!important}
+  .realm-visual{height:145px!important;min-height:145px!important}
+  .realm-art{width:205px!important;height:138px!important}
+}
+
+
+/* 左側採「文字說明－插圖－觀察重點」直向配置，右側保留動態狀態與滑桿 */
+.realm-main{grid-template-columns:minmax(0,1fr) minmax(270px,1fr)!important;align-items:center!important;gap:26px!important}
+.realm-visual-column{display:flex;flex-direction:column;justify-content:center;gap:10px;min-width:0;height:100%;position:relative;z-index:1}
+.realm-visual-column .lead{font-size:17px!important;line-height:1.55;margin:0!important;color:var(--muted);font-weight:600;padding:0 8px}
+.realm-visual-column .realm-visual{width:100%;height:190px!important;min-height:190px!important;margin:0!important}
+.realm-visual-column .observation-note{margin:0!important;padding:12px 14px!important;font-size:14px!important;line-height:1.6!important;background:#f4f8fa;border-radius:12px}
+.realm-copy{align-self:center}
+.realm-copy h3{margin-bottom:15px!important}
+@media(max-width:900px){
+ .realm-main{grid-template-columns:minmax(0,1fr) minmax(250px,1fr)!important;gap:16px!important}
+ .realm-visual-column .realm-visual{height:170px!important;min-height:170px!important}
+ .realm-visual-column .lead{font-size:15px!important}
+ .realm-visual-column .observation-note{font-size:13px!important}
+}
+@media(max-width:650px){
+ .realm-main{grid-template-columns:1fr!important;gap:12px!important}
+ .realm-visual-column{gap:7px}
+ .realm-visual-column .realm-visual{height:135px!important;min-height:135px!important}
+ .realm-copy h3{margin-bottom:8px!important}
+}
+
+
+/* 結果頁：先呈現學生配比可能造成的環境情境，再比對科學家估算 */
+.impact-panel{padding:15px 18px;margin-bottom:12px}
+.impact-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.impact-heading h3,.result-compare-heading h3{font-size:16px;margin:3px 0 0}
+.impact-total{display:flex;align-items:baseline;gap:5px;color:#1689b8;white-space:nowrap}
+.impact-total b{font-size:24px}.impact-total span{font-size:11px;color:#78909d}
+.impact-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.impact-item{border:1px solid var(--line);border-top:4px solid var(--impact);border-radius:12px;padding:10px 11px;background:#fff;min-width:0}
+.impact-item-head{display:flex;justify-content:space-between;gap:6px;align-items:center;margin-bottom:5px}
+.impact-item-head b{font-size:13px}.impact-item-head strong{font-size:17px;color:var(--impact)}
+.impact-item p{font-size:11px;line-height:1.6;color:#526f80;margin:0}
+.scenario-caveat{font-size:10px;color:#8397a2;line-height:1.5;margin:9px 0 0}
+.result-compare-heading{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:4px 2px 8px}
+.result-compare-heading p{font-size:10px;color:#718895;margin:0}
+.result-layout{gap:10px}
+.result-card{padding:9px 12px}
+.result-card h3{font-size:12px}
+.real-card{border:2px solid #a8d7e7;background:#f5fbfd}
+.result-bottom{gap:10px;margin-top:10px}
+.insight-panel,.advice-panel{padding:13px 15px}
+.insight-panel h3,.advice-panel h3{font-size:14px;margin:0 0 8px}
+.insight-panel p,.insight-panel li{font-size:11px;line-height:1.65}
+.insight-panel ul{padding-left:18px;margin:5px 0}
+.ocean-takeaway{background:linear-gradient(145deg,#effaff,#fff);border:1px solid #b9e1ee}
+.ocean-takeaway h3{font-size:17px;color:#126f91;margin:3px 0 8px}
+.ocean-fact{display:flex;align-items:center;gap:10px;padding:8px 11px;background:#e1f4fa;border-radius:10px;margin-bottom:8px;color:#145d78}
+.ocean-fact strong{font-size:29px;line-height:1;color:#078bb8}
+.ocean-fact span{font-size:11px;line-height:1.4;font-weight:700}
+.ocean-takeaway p{font-size:11px;line-height:1.65;color:#466777;margin:5px 0}
+.ocean-takeaway .ocean-last{font-weight:800;color:#126f91}
+@media(max-width:900px){.impact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.result-bottom{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.impact-grid{grid-template-columns:1fr 1fr}.result-compare-heading{display:block}.result-compare-heading p{margin-top:4px}.result-bottom{grid-template-columns:1fr}}
+
+
+/* 桌面常用視窗（約 900×800）：結果頁完整呈現，不在資訊卡內產生捲軸 */
+@media (min-width:901px) and (max-height:900px){
+  .app{padding:9px 16px 10px;gap:8px}
+  .top{padding:8px 15px;border-radius:18px}
+  .logo{width:40px;height:40px}
+  .page-head{margin:0 2px 8px}
+  .page-head h2{font-size:21px}
+  .page-head p{font-size:11px}
+  .impact-panel{padding:10px 14px;margin-bottom:8px}
+  .impact-heading{margin-bottom:7px}
+  .impact-heading h3{font-size:14px}
+  .impact-total b{font-size:21px}
+  .impact-grid{gap:7px}
+  .impact-item{padding:7px 9px;border-top-width:3px}
+  .impact-item-head{margin-bottom:3px}
+  .impact-item-head b{font-size:12px}
+  .impact-item-head strong{font-size:15px}
+  .impact-item p{font-size:10px;line-height:1.4}
+  .scenario-caveat{font-size:9px;margin-top:6px}
+  .result-compare-heading{margin:2px 2px 6px}
+  .result-compare-heading h3{font-size:14px}
+  .result-compare-heading p{font-size:9px}
+  .result-layout{gap:9px}
+  .result-card{padding:7px 9px}
+  .result-card h3{font-size:11px;margin-bottom:4px}
+  .pie{width:clamp(72px,10vh,88px);height:clamp(72px,10vh,88px);margin:0 auto 3px}
+  .pie-legend{font-size:9px;gap:4px 7px}
+  .legend-item i{width:7px;height:7px}
+  .result-bottom{gap:9px;margin-top:8px;flex:1;min-height:0}
+  .insight-panel,.advice-panel{padding:10px 12px;overflow:hidden}
+  .insight-panel h3,.advice-panel h3{font-size:12px;margin:0 0 5px}
+  .insight-panel p,.insight-panel li{font-size:10px;line-height:1.45;margin:3px 0}
+  .insight-panel ul{padding-left:16px;margin:3px 0}
+  .ocean-takeaway h3{font-size:14px;margin:2px 0 5px}
+  .ocean-fact{padding:6px 9px;margin-bottom:5px;gap:8px}
+  .ocean-fact strong{font-size:24px}
+  .ocean-fact span{font-size:10px}
+  .ocean-takeaway p{font-size:10px;line-height:1.45;margin:4px 0}
+  .footer-nav{margin-top:7px}
+  .footer-nav .foot-hint{font-size:9px}
+}
+/* 中等寬度或較矮視窗時，避免內容卡片出現內嵌捲軸 */
+@media (min-width:901px) and (max-height:760px){
+  .impact-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .impact-item p{font-size:9px}
+  .result-bottom{min-height:125px}
+  .ocean-fact strong{font-size:21px}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand"><div class="logo">🌏</div><div><div class="eyebrow">互動學習模擬器</div><h1>地球熱量分配模擬器</h1></div></div>
+  <div class="progress-wrap" aria-label="學習進度">
+    <span class="step-dot active" data-dot="0">1</span><i class="step-line"></i><span class="step-dot" data-dot="1">2</span><i class="step-line"></i><span class="step-dot" data-dot="2">3</span><i class="step-line"></i><span class="step-dot" data-dot="3">4</span>
+  </div>
+  <div class="top-actions"><button class="quiet-btn" id="resetBtn">↻ 重新開始</button></div>
+</header>
+<main>
+<!-- PAGE 1 -->
+<section class="page active" id="page0">
+  <div class="page-head"><div><div class="kicker">第一階段｜先觀察，不急著猜</div><h2>如果各個圈層吸收熱能，會有什麼變化？</h2><p>一次觀察一個圈層。切換下方標籤，拉動熱能滑桿，看看它的反應。</p></div><span class="step-label" id="exploreProgress">已觀察 0 / 4 個圈層</span></div>
+  <div class="explore-layout">
+    <div class="panel realm-panel" id="realmPanel" style="--tint:#fff0d5;--tab:#bd7b20">
+      <div class="realm-tabs" id="realmTabs">
+        <button class="realm-tab active" data-realm="land">⛰ 陸地</button><button class="realm-tab" data-realm="ice">❄ 冰凍圈</button><button class="realm-tab" data-realm="atmosphere">☁ 大氣</button><button class="realm-tab" data-realm="ocean">🌊 海洋</button>
+      </div>
+      <div class="realm-main">
+        <div class="realm-visual-column">
+          <p class="lead" id="realmLead">土壤與岩石也會吸收熱能。</p>
+          <div class="realm-visual" id="realmVisual"><div class="realm-art" id="realmArt" aria-hidden="true"></div></div>
+          <p class="observation-note" id="realmNote">觀察重點：熱量主要影響地表及較淺的地下。</p>
+        </div>
+        <div class="realm-copy"><h3 id="realmTitle">陸地圈</h3>
+          <div class="state-box"><div class="state-title">吸收熱能後，可能出現的變化</div><div class="state-text" id="realmState">地表與淺層土壤逐漸升溫</div></div>
+          <div class="heat-control"><div class="control-top"><label for="heatSlider">模擬吸收熱能的程度</label><strong id="heatValue">0%</strong></div><input id="heatSlider" type="range" min="0" max="100" value="0"><div class="range-labels"><span>尚未吸收</span><span>吸收程度提高</span></div></div>
+        </div>
+      </div>
+    </div>
+    <aside class="panel side-panel"><div><h3>我的觀察紀錄</h3><p>每個圈層都試著提高吸熱程度，觀察狀態改變後，就會完成一項探索。</p><div class="check-list" id="checkList"></div><div class="tip">🔎 小提醒：這個滑桿是用來觀察「吸收熱能後的變化」，不是在分配地球熱量。先觀察各圈層，再進入下一關。</div></div><div><button class="primary" id="toFirstAlloc" style="width:100%" disabled>完成觀察，進入第一次配比 →</button></div></aside>
+  </div>
+  <div class="footer-nav"><span class="foot-hint">請依序或自行選擇圈層觀察；四個都完成後才能繼續。</span><div><button class="secondary" id="prevRealm" disabled>← 前一個</button> <button class="secondary" id="nextRealm">下一個圈層 →</button></div></div>
+</section>
+<!-- PAGE 2：第一次推估，保存後同頁呈現情境 -->
+<section class="page" id="page1">
+  <div class="page-head"><div><div class="kicker">第二階段｜第一次推估</div><h2>你認為地球吸收的熱能去了哪裡？</h2><p>先不看科學線索，依照剛才的觀察與直覺，分配 100% 的熱能。</p></div><span class="step-label" id="firstStepLabel">第一次配比｜直覺推估</span></div>
+  <div class="alloc-layout first-allocation" id="firstAllocation">
+    <div class="panel alloc-panel" id="firstAllocRows"></div>
+    <aside class="panel sum-panel" id="firstRightPanel">
+      <div id="firstMeterPanel"><div class="eyebrow">熱能分配總計</div><div class="sum-number"><span id="firstTotal">0</span><small> / 100%</small></div><div class="sum-track"><span id="firstTrack"></span></div><div class="sum-status" id="firstStatus">還差 100%，請繼續分配</div><div class="feedback-box"><strong>第一次先憑直覺判斷</strong><p>請想一想：哪個圈層能容納最多熱能？先保存你的第一個想法，稍後再用科學線索重新檢視。</p></div></div>
+      <div class="first-story" id="firstStoryPanel">
+        <div class="earth-scene"><div class="earth"><span class="heat-ring"></span>🌍</div><div class="earth-caption">依照你的比例，看看這樣的地球情境</div></div>
+        <div class="story-panel"><div class="eyebrow">你的第一次推估已保存</div><h3 id="earthStoryTitle">地球熱能分配情境</h3><p id="earthStory"></p><div class="story-highlight" id="earthStoryHint"></div></div>
+        <button class="primary" id="toClues" style="width:100%">閱讀科學線索，重新思考 →</button>
+      </div>
+      <button class="primary" id="saveFirst" disabled>保存第一次推估 →</button>
+    </aside>
+  </div>
+  <div class="footer-nav"><span class="foot-hint">四個圈層合計為 100%；個別圈層可以是 0%。</span><button class="secondary" data-back="0">← 回到觀察</button></div>
+</section>
+<!-- PAGE 3：科學線索 + 第二次配比 -->
+<section class="page" id="page2">
+  <div class="page-head"><div><div class="kicker">第三階段｜根據證據修正</div><h2>讀完線索，再調整你的第二次推估</h2><p>已帶入你的第一次配比。參考三項科學事實，從原本比例開始調整，不必重新歸零。</p></div><span class="step-label">科學線索 × 第二次配比</span></div>
+  <div class="evidence-layout">
+    <div class="clue-grid compact">
+      <article class="panel clue-card" style="--accent:#1689b8;--tint:#eaf6fa"><div class="clue-letter">線索 A｜物質吸熱的差異</div><h3>同樣重量，誰需要更多熱量？</h3><p>讓 1 公斤物質升高 1℃，不同物質需要的熱量不同。</p><div class="clue-fact">水：約 4,184 焦耳｜空氣：約 1,005 焦耳｜岩石：約 800 焦耳<br><b>想一想：水吸熱後，溫度上升得快嗎？</b></div></article>
+      <article class="panel clue-card" style="--accent:#bd842d;--tint:#fbf4e7"><div class="clue-letter">線索 B｜海洋的深度與流動</div><h3>海洋不只有表面，還有深厚水體</h3><p>海洋平均深度約 3,700 公尺。洋流與垂直混合能將表層熱量帶往深處。</p><div class="clue-fact">海洋覆蓋地球表面約 71%。<br><b>想一想：哪裡有更大的空間容納熱量？</b></div></article>
+      <article class="panel clue-card" style="--accent:#687d91;--tint:#eef2f5"><div class="clue-letter">線索 C｜大氣的總量</div><h3>包圍地球的空氣，總量有多少？</h3><p>大氣看似無邊無際，但空氣密度低；大氣總重量不到海洋總水量的千分之四。</p><div class="clue-fact">不能只看範圍大小，也要考慮物質總量與吸熱特性。<br><b>想一想：大氣能吸收最多熱能嗎？</b></div></article>
+    </div>
+    <div class="second-work">
+      <div class="panel alloc-panel" id="secondAllocRows"></div>
+      <aside class="panel sum-panel"><div><div class="eyebrow">第二次推估｜熱能分配總計</div><div class="sum-number"><span id="secondTotal">100</span><small> / 100%</small></div><div class="sum-track"><span id="secondTrack"></span></div><div class="sum-status" id="secondStatus">目前合計 100%，可以保存</div><div class="feedback-box"><strong>重新思考</strong><p>海洋的水量、深度與流動能力，是否讓你改變原本的判斷？大氣看起來範圍很大，是否就代表它吸收最多熱能？</p></div></div><button class="primary" id="saveSecond">保存第二次推估，查看科學家估算 →</button></aside>
+    </div>
+  </div>
+  <div class="footer-nav"><span class="foot-hint">第二次配比會從第一次答案開始，請依據線索調整，總和仍須為 100%，個別圈層可分配 0%。</span><button class="secondary" data-back="1">← 回看第一次推估</button></div>
+</section>
+<!-- PAGE 4｜情境結果、科學家比對與核心觀念 -->
+<section class="page" id="page3">
+  <div class="page-head"><div><div class="kicker">第四階段｜看看你的地球會發生什麼事</div><h2>如果地球依照你的配比吸收熱能，會發生什麼事？</h2><p>先看看第二次推估所代表的地球情境，再與科學家的估算比較。</p></div><span class="step-label">探究結果</span></div>
+  <section class="panel impact-panel">
+    <div class="impact-heading"><div><div class="eyebrow">你的第二次推估｜假設情境</div><h3>這樣的熱能分配，可能帶來哪些環境變化？</h3></div><div class="impact-total"><b id="impactTotal">100%</b><span>熱能分配</span></div></div>
+    <div class="impact-grid" id="impactGrid"></div>
+    <p class="scenario-caveat">這是依照你設定的比例呈現的假設情境，用來思考不同圈層可能受到的影響；不代表實際氣候預測，也不能單靠比例推算影響程度。</p>
+  </section>
+  <div class="result-compare-heading"><div><div class="eyebrow">回到真實地球</div><h3>科學家的觀測結果，和你的推估有什麼不同？</h3></div><p>並列比較第一次直覺、第二次修正，以及科學家估算。</p></div>
+  <div class="result-layout">
+    <div class="panel result-card"><h3>第一次推估｜直覺</h3><svg class="pie" id="pieFirst" viewBox="0 0 100 100"></svg><div class="pie-legend" id="legendFirst"></div></div>
+    <div class="panel result-card"><h3>第二次推估｜修正</h3><svg class="pie" id="pieSecond" viewBox="0 0 100 100"></svg><div class="pie-legend" id="legendSecond"></div></div>
+    <div class="panel result-card real-card"><h3>科學家估算｜1971–2018</h3><svg class="pie" id="pieReal" viewBox="0 0 100 100"></svg><div class="pie-legend" id="legendReal"></div></div>
+  </div>
+  <div class="result-bottom">
+    <div class="panel insight-panel"><h3>📊 回顧你的推估變化</h3><div id="comparisonText"></div></div>
+    <div class="panel advice-panel ocean-takeaway"><div class="eyebrow">最後帶走的科學觀念</div><h3>🌊 海洋，是地球最重要的熱量儲存庫</h3><div class="ocean-fact"><strong>約 91%</strong><span>地球系統累積的多餘熱量進入海洋</span></div><p>海洋面積廣、水量龐大，水的比熱大，加上洋流與垂直混合，能把熱量帶往更深的水體，因此吸收並儲存了地球大部分的多餘熱量。</p><p class="ocean-last">海洋承擔了大量熱量，但並非沒有受到影響。海洋暖化也正在改變海洋生態與地球氣候。</p></div>
+  </div>
+  <div class="footer-nav"><span class="foot-hint">重要的不是猜中數字，而是理解海洋為什麼承擔了地球大部分的多餘熱量。</span><button class="primary" id="finishReset">重新進行一次探究 ↻</button></div>
+</section>
+</main>
+</div>
+<script>
+const realms={
+ land:{name:'陸地圈',short:'陸地',symbol:'⛰️',art:`<svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="landSky" x2="0" y2="1"><stop stop-color="#fff7e8"/><stop offset="1" stop-color="#f4d9a9"/></linearGradient><linearGradient id="landRock" x2="0" y2="1"><stop stop-color="#a7b5b7"/><stop offset="1" stop-color="#64777a"/></linearGradient></defs><circle cx="174" cy="34" r="17" fill="#f5bd62" opacity=".85"/><path d="M20 126L75 47l30 40 27-54 68 93Z" fill="url(#landRock)" stroke="#65787b" stroke-width="2"/><path d="M75 47l-8 12 13-4 9 12 16 20Z" fill="#f8fbfa"/><path d="M132 33l-9 14 15-4 12 13 14 19Z" fill="#f8fbfa"/><path d="M20 126q48-14 91 0t89 0v14H20Z" fill="#9b6a3d"/><path d="M20 140h180" stroke="#7b512f" stroke-width="4" stroke-linecap="round"/><path d="M54 130l8-7m-1 11 9-8m61 4 8-7m-2 11 9-8" stroke="#d8b17b" stroke-width="3" stroke-linecap="round"/></svg>`,lead:'土壤與岩石也會吸收熱能。',color:'#d79532',tint:'#fff0d5',tab:'#bd7b20',note:'熱量主要影響地表及較淺的地下；岩石與土壤不像海水一樣能上下流動。',states:[[0,'地表與淺層土壤維持常態'],[30,'表土逐漸升溫、較容易乾燥'],[65,'地表與淺層土壤明顯受熱']],},
+ ice:{name:'冰凍圈',short:'冰凍圈',symbol:'🧊',art:`<svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="iceSea" x2="0" y2="1"><stop stop-color="#dff8fc"/><stop offset="1" stop-color="#9bdbe8"/></linearGradient></defs><path d="M15 126q35-10 70 0t70 0 50 0v20H15Z" fill="url(#iceSea)"/><path d="M27 119l33-67 25 31 24-50 52 67 24 19Z" fill="#8bcbd8" stroke="#4e9eaf" stroke-width="2"/><path d="M60 52l-9 19 15-7 19 19Zm49-19-11 23 18-8 19 22Z" fill="#fff" stroke="#c5edf2" stroke-width="2"/><path d="M30 122q30-9 58 0t57 0 45 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M45 139h35m18 0h23m15 0h30" stroke="#56aabd" stroke-width="3" stroke-linecap="round"/></svg>`,lead:'冰川與海冰融化時會吸收能量。',color:'#51b9c8',tint:'#e5f8fa',tab:'#2697a7',note:'冰雪融化需要吸收能量；這些能量是融化過程消耗的能量，不等於冰雪升溫後儲存的熱量。',states:[[0,'冰雪維持固態'],[25,'部分冰雪開始融化'],[65,'更多冰雪吸收能量而融化']]},
+ atmosphere:{name:'大氣圈',short:'大氣',symbol:'☁️',art:`<svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="airCloud" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#c9e3f2"/></linearGradient></defs><circle cx="155" cy="49" r="24" fill="#f4c66e"/><g stroke="#e5ad4d" stroke-width="4" stroke-linecap="round"><path d="M155 13v-8m0 88v-8m36-36h8M111 49h-8m69-26 6-6m-63 63-6 6m63 0 6 6"/></g><path d="M43 112c-18 0-29-12-29-27 0-14 11-25 25-26 5-22 25-37 48-33 19 3 33 17 37 35 18-3 35 10 35 28 0 14-11 23-27 23Z" fill="url(#airCloud)" stroke="#7ba9c2" stroke-width="3"/><path d="M53 120v13m38-13v13m38-13v13" stroke="#5e9fbe" stroke-width="4" stroke-linecap="round"/><path d="M43 139h103" stroke="#9cc8dc" stroke-width="3" stroke-linecap="round"/></svg>`,lead:'包圍地球的空氣也會吸收熱能。',color:'#718096',tint:'#edf2f6',tab:'#64748b',note:'空氣容易受熱升溫，但大氣中的物質總量遠少於海洋。',states:[[0,'氣溫維持原本狀態'],[25,'近地面空氣逐漸升溫'],[65,'可能出現明顯高溫與熱浪情境']]},
+ ocean:{name:'海洋圈',short:'海洋',symbol:'🌊',art:`<svg viewBox="0 0 220 160" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="oceanWater" x2="0" y2="1"><stop stop-color="#70c9e5"/><stop offset="1" stop-color="#147da9"/></linearGradient></defs><circle cx="169" cy="32" r="17" fill="#f5c46e"/><path d="M15 75q25-20 50 0t50 0 50 0 40 0v67H15Z" fill="url(#oceanWater)"/><path d="M15 91q25-20 50 0t50 0 50 0 40 0" fill="none" stroke="#e6faff" stroke-width="5" stroke-linecap="round"/><path d="M15 113q25-17 50 0t50 0 50 0 40 0" fill="none" stroke="#a9e5f4" stroke-width="3" stroke-linecap="round"/><path d="M76 124v-20m-7 8 7-8 7 8m31 20V93m-7 9 7-9 7 9" fill="none" stroke="#e7f9ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 145h165" stroke="#0b668e" stroke-width="3" stroke-linecap="round"/></svg>`,lead:'海洋表面吸收熱能，熱量也能往深處傳遞。',color:'#159bd0',tint:'#e4f5fb',tab:'#1689b8',note:'海洋水量龐大，海水會流動、混合，熱量不只停留在表面。',states:[[0,'海水維持原本狀態'],[25,'表層海水逐漸升溫'],[65,'熱量持續進入更深的水體']]}
+};
+const order=['land','ice','atmosphere','ocean'];const real={ocean:91,land:5,ice:3,atmosphere:1};const state={page:0,activeRealm:'land',explored:{land:false,ice:false,atmosphere:false,ocean:false},heat:{land:0,ice:0,atmosphere:0,ocean:0},first:null,second:null,alloc:{land:0,ice:0,atmosphere:0,ocean:0}};
+const $=id=>document.getElementById(id);const total=o=>Object.values(o).reduce((a,b)=>a+b,0);const pct=n=>Math.max(0,Math.min(100,n));
+function setPage(n){state.page=n;document.querySelectorAll('.page').forEach((p,i)=>p.classList.toggle('active',i===n));document.querySelectorAll('.step-dot').forEach((d,i)=>{d.classList.toggle('active',i===n);d.classList.toggle('done',i<n)});document.querySelectorAll('.step-line').forEach((l,i)=>l.classList.toggle('done',i<n));}
+function renderChecklist(){const box=$('checkList');box.innerHTML=order.map(k=>`<div class="check-item ${state.explored[k]?'done':''}"><span>${realms[k].symbol} ${realms[k].short}</span><span class="check-mark">${state.explored[k]?'✓ 已觀察':'○ 待觀察'}</span></div>`).join('');const count=order.filter(k=>state.explored[k]).length;$('exploreProgress').textContent=`已觀察 ${count} / 4 個圈層`;$('toFirstAlloc').disabled=count!==4;}
+function renderRealm(){const k=state.activeRealm,r=realms[k],v=state.heat[k];$('realmPanel').style.setProperty('--tint',r.tint);$('realmPanel').style.setProperty('--tab',r.tab);document.querySelectorAll('.realm-tab').forEach(b=>b.classList.toggle('active',b.dataset.realm===k));$('realmTitle').textContent=r.name;$('realmLead').textContent=r.lead;$('realmArt').innerHTML=r.art;$('realmNote').textContent='觀察重點：'+r.note;$('heatSlider').value=v;$('heatSlider').style.accentColor=r.tab;$('heatValue').textContent=v+'%';let st=r.states[0][1];for(const [threshold,label] of r.states)if(v>=threshold)st=label;$('realmState').textContent=st;$('realmVisual').classList.toggle('hot',v>=25);$('prevRealm').disabled=order.indexOf(k)===0;$('nextRealm').disabled=order.indexOf(k)===3;}
+function changeRealm(delta){let i=order.indexOf(state.activeRealm);state.activeRealm=order[Math.max(0,Math.min(3,i+delta))];renderRealm();}
+document.querySelectorAll('.realm-tab').forEach(b=>b.addEventListener('click',()=>{state.activeRealm=b.dataset.realm;renderRealm()}));$('prevRealm').onclick=()=>changeRealm(-1);$('nextRealm').onclick=()=>changeRealm(1);$('heatSlider').addEventListener('input',e=>{let v=+e.target.value,k=state.activeRealm;state.heat[k]=v;if(v>=30)state.explored[k]=true;renderRealm();renderChecklist()});
+function buildAllocRows(container){$(container).innerHTML=order.map(k=>`<div class="alloc-row" style="--row:${realms[k].color}"><div class="alloc-name"><i class="swatch" style="background:${realms[k].color}"></i>${realms[k].short}</div><input type="range" min="0" max="100" step="1" value="${state.alloc[k]}" data-alloc="${k}"><div class="alloc-value" data-value="${k}">${state.alloc[k]}%</div></div>`).join('');$(container).querySelectorAll('input').forEach(input=>input.addEventListener('input',e=>{state.alloc[e.target.dataset.alloc]=+e.target.value;renderAlloc(container.includes('first')?'first':'second')}));}
+function renderAlloc(which){const isFirst=which==='first',prefix=isFirst?'first':'second',rowsId=prefix+'AllocRows',sum=total(state.alloc);$(prefix+'Total').textContent=sum;$(prefix+'Track').style.width=Math.min(sum,100)+'%';let msg=sum===100?'剛好 100%，可以保存':sum<100?`還差 ${100-sum}%，請繼續分配`:`超出 ${sum-100}%，請調整比例`;$(prefix+'Status').textContent=msg;$(prefix+'Status').style.color=sum===100?'#16866b':sum>100?'#bd5549':'#a16c24';$(prefix+'Track').style.background=sum>100?'#d66b61':'';$(rowsId).querySelectorAll('input').forEach(input=>{let k=input.dataset.alloc;input.value=state.alloc[k];$(rowsId).querySelector(`[data-value="${k}"]`).textContent=state.alloc[k]+'%'});if(isFirst)$('saveFirst').disabled=sum!==100;else $('saveSecond').disabled=sum!==100;}
+function firstStory(){const a=state.first,o=a.ocean,air=a.atmosphere,land=a.land,ice=a.ice;let title,text,hint;if(o>=60){title='你的推估：海洋是主要的熱能去處';text=`你把 ${o}% 的熱能分配給海洋，認為海洋可能容納大部分熱能。依照這個推估，海洋將承擔主要的熱量變化，其他圈層分到的比例相對較少。` ;hint='接下來可以思考：海洋為什麼有能力容納這麼多熱能？是因為面積大，還是還有其他原因？';}else if(air>=land&&air>=ice){title='你的推估：大氣承擔較多熱能';text=`你分配給大氣 ${air}%，是四個圈層中比例最高的一項。依照這個推估，空氣將承擔較多熱量，地表與海洋分到的比例相對有限。`;hint='接下來可以思考：大氣看起來包圍整個地球，是否就代表它的物質總量也很大？';}else if(land>=o&&land>=ice){title='你的推估：陸地承擔較多熱能';text=`你分配給陸地 ${land}%，是四個圈層中比例最高的一項。依照這個推估，陸地表面與地下將承擔較多熱量。`;hint='接下來可以思考：陸地的熱量主要停留在表面，還是能像海水一樣傳遞到深處？';}else{title='你的推估：冰雪融化消耗較多能量';text=`你分配給冰凍圈 ${ice}%，是四個圈層中比例最高的一項。依照這個推估，較多能量會用在冰雪融化的過程。`;hint='接下來可以思考：冰雪融化吸收的能量，和冰雪本身儲存的熱量，是同一件事嗎？';}$('earthStoryTitle').textContent=title;$('earthStory').textContent=text;$('earthStoryHint').textContent=hint;}
+$('toFirstAlloc').onclick=()=>{state.alloc={land:0,ice:0,atmosphere:0,ocean:0};buildAllocRows('firstAllocRows');renderAlloc('first');setPage(1)};$('saveFirst').onclick=()=>{if(total(state.alloc)!==100)return;state.first={...state.alloc};firstStory();$('firstMeterPanel').style.display='none';$('saveFirst').style.display='none';$('firstStoryPanel').classList.add('show');$('firstAllocation').classList.add('saved');$('firstStepLabel').textContent='第一次推估情境';$('firstAllocRows').querySelectorAll('input').forEach(input=>input.disabled=true);};
+$('toClues').onclick=()=>{if(!state.first)return;state.alloc={land:state.first.land,ice:state.first.ice,atmosphere:state.first.atmosphere,ocean:state.first.ocean};buildAllocRows('secondAllocRows');renderAlloc('second');setPage(2)};
+$('saveSecond').onclick=()=>{if(total(state.alloc)!==100)return;state.second={...state.alloc};renderResults();setPage(3)};
+document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>setPage(+b.dataset.back)));
+function pie(svgId,data){const colors={ocean:'#159bd0',atmosphere:'#718096',land:'#d79532',ice:'#51b9c8'};const keys=['ocean','atmosphere','land','ice'];let start=-Math.PI/2,html='';keys.forEach(k=>{let v=data[k]||0;if(!v)return;let end=start+2*Math.PI*v/100;if(v>=99.99){html+=`<circle cx="50" cy="50" r="45" fill="${colors[k]}"/>`;start=end;return;}let x1=50+45*Math.cos(start),y1=50+45*Math.sin(start),x2=50+45*Math.cos(end),y2=50+45*Math.sin(end),large=v>50?1:0;html+=`<path d="M50 50 L${x1} ${y1} A45 45 0 ${large} 1 ${x2} ${y2} Z" fill="${colors[k]}" stroke="white" stroke-width="1.2"/>`;start=end;});$(svgId).innerHTML=html;}
+function legend(id,data){const names={ocean:'海洋',atmosphere:'大氣',land:'陸地',ice:'冰雪'};$(id).innerHTML=['ocean','atmosphere','land','ice'].map(k=>`<span class="legend-item"><i style="background:${realms[k].color}"></i>${names[k]} ${data[k]}%</span>`).join('')}
+function renderResults(){
+  pie('pieFirst',state.first);pie('pieSecond',state.second);pie('pieReal',real);
+  legend('legendFirst',state.first);legend('legendSecond',state.second);legend('legendReal',real);
+  $('impactTotal').textContent=total(state.second)+'%';
+  const impact={
+    ocean:{name:'海洋',color:'#159bd0',effect:'海水吸收熱能，表層升溫，熱量也可能隨洋流與混合進入深層水體。'},
+    atmosphere:{name:'大氣',color:'#718096',effect:'大氣吸收熱能後升溫，可能改變近地面氣溫與天氣型態。'},
+    land:{name:'陸地',color:'#d79532',effect:'地表與淺層土壤升溫，可能加劇地表乾燥與熱環境變化。'},
+    ice:{name:'冰凍圈',color:'#51b9c8',effect:'冰雪融化時會消耗熱能，可能造成冰川與海冰減少。'}
+  };
+  const keys=['ocean','atmosphere','land','ice'];
+  $('impactGrid').innerHTML=keys.map(k=>{
+    const v=state.second[k],x=impact[k];
+    return `<article class="impact-item" style="--impact:${x.color}"><div class="impact-item-head"><b>${x.name}</b><strong>${v}%</strong></div><p>${v===0?'你的推估沒有分配熱能給這個圈層。':x.effect}</p></article>`;
+  }).join('');
+  const labels={ocean:'海洋',atmosphere:'大氣',land:'陸地',ice:'冰凍圈'};
+  const changes=keys.map(k=>{
+    const a=state.first[k],b=state.second[k],d=b-a,name=labels[k];
+    if(a===0&&b===0)return `${name}：兩次都沒有分配熱能（0%）。`;
+    if(d===0)return `${name}：維持 ${b}%，比例沒有改變。`;
+    if(d>0)return `${name}：從 ${a}% 提高到 ${b}%，增加 ${d} 個百分點。`;
+    return `${name}：從 ${a}% 降低到 ${b}%，減少 ${Math.abs(d)} 個百分點。`;
+  });
+  $('comparisonText').innerHTML=`<p>比較兩次推估，你的比例調整如下：</p><ul>${changes.map(x=>`<li>${x}</li>`).join('')}</ul><p>再看看第二次推估與科學家估算的差異。科學家的觀測顯示，地球系統累積的多餘熱量約有 91% 進入海洋。這個結果提醒我們：海洋是地球熱量變化中不可忽略的關鍵。</p>`;
+}
+function resetAll(){$('firstMeterPanel').style.display='block';$('saveFirst').style.display='';$('firstStoryPanel').classList.remove('show');$('firstAllocation').classList.remove('saved');$('firstStepLabel').textContent='第一次配比｜直覺推估';$('firstAllocRows').querySelectorAll('input').forEach(input=>input.disabled=false);$('firstAllocation').classList.remove('hide');$('firstStoryPanel').classList.remove('show');$('firstStepLabel').textContent='第一次配比｜直覺推估';state.page=0;state.activeRealm='land';state.explored={land:false,ice:false,atmosphere:false,ocean:false};state.heat={land:0,ice:0,atmosphere:0,ocean:0};state.first=null;state.second=null;state.alloc={land:0,ice:0,atmosphere:0,ocean:0};renderRealm();renderChecklist();setPage(0)}$('resetBtn').onclick=resetAll;$('finishReset').onclick=resetAll;
+renderRealm();renderChecklist();
+</script>
+</body>
+</html>
